@@ -36,7 +36,7 @@ retries: 1
 slow: '75'
 sort: false
 spec:
-  - './tests/unit/**/*.spec.ts' # the positional arguments!
+  - './tests/e2e/**/*.spec.ts' # the positional arguments!
 timeout: '2000' # same as "timeout: '2s'"
 # timeout: false # same as "timeout: 0"
 trace-warnings: true # node flags ok
