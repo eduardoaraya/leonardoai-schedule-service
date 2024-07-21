@@ -1,7 +1,14 @@
 import express, { Request, Response } from "express";
 
-const app = express();
+const server = express();
 
-app.get("/healthcheck", (_req: Request, res: Response) => res.status(200).send({ status: 'Ok', apiVersion: 0 }));
+server.get(
+  "/",
+  (_req: Request, res: Response) => 
+    res.status(200).send({
+      status: 'Ok', 
+      apiVersion: process.env.API_VERSION 
+    })
+);
 
-export default app;
+export default server;

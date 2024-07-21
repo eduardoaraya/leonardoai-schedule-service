@@ -7,10 +7,10 @@
   "scripts": {
     "build": "npx tsc",
     "ts:w": "npx tsc --watch",
-    "node:w": "node --watch ./_build/index.js",
-    "start:dev": "node-ts --watch ./src/index.js",
+    "node:w": "node --watch ./_build/bin/server.js",
+    "start:dev": "ts-node --watch ./src/index.js",
     "test:unit": "npx mocha",
-    "test:e2e": "npx mocha --config=./.mocharc.e2e.yml"
+    "test:e2e": "npx mocha --config=./.mocharc.e2e.yml --"
   },
   "author": "",
   "license": "ISC",
