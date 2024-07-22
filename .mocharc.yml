@@ -42,9 +42,9 @@ timeout: '2000' # same as "timeout: '2s'"
 trace-warnings: true # node flags ok
 ui: 'bdd'
 v8-stack-trace-limit: 100 # V8 flags are prepended with "v8-"
-watch: false
+watch: true
 watch-files:
-  - 'lib/**/*.js'
-  - 'test/**/*.js'
+  - 'src/**/*.ts'
+  - 'tests/unit/**/*.ts'
   #watch-ignore:
   #  - 'lib/vendor'
