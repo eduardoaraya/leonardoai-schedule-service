@@ -1,7 +1,31 @@
-# API
+# Schdule service
 
-## DB
+## API
 
+Arquitetura rest
+
+- schedule
+- task
+- account
+- auth
+
+Arquitetura GraphL
+
+## BDD
+
+- as a guest, create an account with name and email
+- as a account, log in
+- as a account logged in, create a schedule
+- as a account logged in, with your own schedule, create a task that
+these tasks must be validated respecting:
+  - the start/end time of the schedule
+  - the busy times 
+    - looking for the account and agent schedule
+  - the required paramters: duration, start time, schedule, agent
+
+## Docker
+
+### database
 ```
 docker run -d \
 	--name some-postgres \
