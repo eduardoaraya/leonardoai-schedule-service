@@ -1,4 +1,16 @@
-# Schdule service
+# Schedule service
+
+The goal of this project is to try
+apply the concept of working with microservices following clean code,
+design patterns, use TDD and functional programming.
+
+## Technologies
+
+- Nodejs
+- Postgresql
+- Typescript
+- Prisma
+- Docker
 
 ## API
 
@@ -9,6 +21,7 @@ Rest Architecture
 - auth
 
 GraphL Architecture
+// todo
 
 ## BDD
 
