@@ -31,6 +31,7 @@ export function taskController(service: ITaskService): ITaskController {
     async create(req: Request<ITaskCreateRequest>, res: Response): Promise<void> {
       try {
         await service.create(req.body);
+
         res.sendStatus(201); 
       } catch (error) {
         res.status(500).send({ 
@@ -41,6 +42,7 @@ export function taskController(service: ITaskService): ITaskController {
     async update(req: Request<ITaskUpdateRequest>, res: Response): Promise<void> {
       try {
         await service.update(req.body);
+
         res.sendStatus(201); 
       } catch (error) {
         res.status(500).send({ 
@@ -63,6 +65,22 @@ export function taskController(service: ITaskService): ITaskController {
         }); 
       }
     },
+    async take(req: Request, res: Response): Promise<void> {
+      try {
+        const taskId: number = Number(req?.params.id);
+        if (taskId < 0 || taskId >= Number.MAX_SAFE_INTEGER) {
+          throw new Error("Invalid paramter!");
+        }
+
+        res.status(200).send(await service.take(taskId))
+      } catch (error) {
+        res.status(500).send({ 
+          error: error
+        }); 
+      }
+    },
+
   }
+
 }
 

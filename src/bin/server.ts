@@ -1,7 +1,25 @@
-import "../app/bootstrap";
-import server from "../libs/infra/http";
+import  express, { Request, Response } from "express";
+import { bootstrap, IApp } from "../app/bootstrap";
+import http from "../infra/http";
+import { task } from "../app/routes/task";
 
-server.listen(
-  process.env.PORT, 
-  () => console.log(`Server on port: ${process.env.PORT}`)
-);
+bootstrap(http)
+.then(({ server, port, apiVersion, connection }: IApp) => {
+  const router = express.Router();
+
+  server.get("/", (_req: Request, res: Response) => {
+    res.status(200).send({
+      status: 'Ok', 
+      apiVersion
+    })
+  });
+
+  server.use("/task", task(router, connection));
+
+  server.listen(
+    port,
+    () => console.log(`Server on port: ${port}`)
+  );
+})
+
+

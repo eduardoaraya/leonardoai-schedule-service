@@ -1,6 +1,22 @@
-import "../libs/infra/db-connection";
+import { Express } from "express"; 
+import { PrismaClient } from "@prisma/client";
+import { dbConnection } from "../infra/db-connection";
 
-process.env.PORT = "3000";
-process.env.API_VERSION = "0.0.1";
+export interface IApp { 
+  connection: PrismaClient;
+  server: Express;
+  port: number;
+  apiVersion: string;
+}
 
-export default {}
+export async function bootstrap(server: Express): Promise<IApp> {
+  const defaultPort = 3000;
+  const defaultApiVersion = "beta";
+  const connection = await dbConnection(false);
+  return {
+    connection,
+    server,
+    port: Number(process.env.PORT) ?? defaultPort,
+    apiVersion: process.env?.API_VERSION?.toString() ?? defaultApiVersion
+  };
+}
