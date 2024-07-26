@@ -2,14 +2,13 @@
 
 ## API
 
-Arquitetura rest
-
+Rest Architecture
 - schedule
 - task
 - account
 - auth
 
-Arquitetura GraphL
+GraphL Architecture
 
 ## BDD
 
