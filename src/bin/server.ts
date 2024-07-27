@@ -1,7 +1,9 @@
 import  express, { Request, Response } from "express";
 import { bootstrap, IApp } from "../app/bootstrap";
 import http from "../infra/http";
+
 import { task } from "../app/routes/task";
+import { taskHandleFactory } from "../libs/task";
 
 bootstrap(http)
 .then(({ server, port, apiVersion, connection }: IApp) => {
@@ -14,7 +16,7 @@ bootstrap(http)
     })
   });
 
-  server.use("/task", task(router, connection));
+  server.use("/task", task(router, taskHandleFactory(connection)));
 
   server.listen(
     port,

@@ -12,7 +12,7 @@ export async function dbConnection(production: boolean) {
     await dbConnectionCached.$connect();
     return dbConnectionCached;
   } catch (_err) {
-    console.error(_err);
+    console.error(_err); // TODO: To Remove
     throw new Error("Internal Server Error: Error DB Connection");
   }
 }

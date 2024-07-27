@@ -36,7 +36,7 @@ retries: 1
 slow: '75'
 sort: false
 spec:
-  - './tests/unit/**/*.spec.ts' # the positional arguments!
+  - './src/**/*.spec.ts' # the positional arguments!
 timeout: '2000' # same as "timeout: '2s'"
 # timeout: false # same as "timeout: 0"
 trace-warnings: true # node flags ok
@@ -45,6 +45,5 @@ v8-stack-trace-limit: 100 # V8 flags are prepended with "v8-"
 watch: true
 watch-files:
   - 'src/**/*.ts'
-  - 'tests/unit/**/*.ts'
   #watch-ignore:
   #  - 'lib/vendor'
