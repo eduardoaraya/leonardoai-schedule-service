@@ -10,65 +10,58 @@ import {
 
 export function taskController(service: ITaskService): ITaskController {
   return {
-    async list(_req: Request, res: Response): Promise<void> {
+    async list(_req: Request, res: Response): Promise<Response> {
       try {
         const result = await service.list();
-        res.status(200).send(result); 
+        return res.status(200).send(result); 
       } catch (error) {
-        res.sendStatus(500); 
+        return res.sendStatus(500); 
       }
     },
-    async query(req: Request<ITaskQueryRequest>, res: Response): Promise<void> {
+    async query(req: Request<ITaskQueryRequest>, res: Response): Promise<Response> {
       try {
         const result = await service.query(req.body);
-        res.status(200).send(result); 
+        return res.status(200).send(result); 
       } catch (error) {
-        res.sendStatus(500); 
+        return res.sendStatus(500); 
       }
     },
-    async create(req: Request<ITaskCreateRequest>, res: Response): Promise<void> {
+    async create(req: Request<ITaskCreateRequest>, res: Response): Promise<Response> {
       try {
         await service.create(req.body);
-        res.sendStatus(201); 
+        return res.sendStatus(201); 
       } catch (error) {
-        res.sendStatus(500);
+        return res.sendStatus(500);
       }
     },
-    async update(req: Request<ITaskUpdateRequest>, res: Response): Promise<void> {
+    async update(req: Request<ITaskUpdateRequest>, res: Response): Promise<Response> {
       try {
-        await service.update(req.body);
-
-        res.sendStatus(201); 
+        await service.update(req.body, req.body?.id);
+        return res.sendStatus(201); 
       } catch (error) {
-        res.sendStatus(500);
+        return res.sendStatus(500);
       }
     },
-    async delete(req: Request, res: Response): Promise<void> {
+    async delete(req: Request, res: Response): Promise<Response> {
       try {
-        const taskId: number = Number(req?.params.taskId);
-        if (taskId < 0 || taskId >= Number.MAX_SAFE_INTEGER) {
-          throw new Error("Invalid paramter!");
-        }
-
+        const taskId: string = String(req?.params.taskId);
         await service.delete(taskId)
-        res.sendStatus(201); 
+        return res.sendStatus(201); 
       } catch (error) {
-        res.sendStatus(500);
+        return res.sendStatus(500);
       }
     },
-    async take(req: Request, res: Response<ITaskBase>): Promise<void> {
+    async take(req: Request, res: Response<ITaskBase>): Promise<Response> {
       try {
-        const taskId: number = Number(req?.params.taskId);
-        if (taskId < 0 || taskId >= Number.MAX_SAFE_INTEGER) {
-          throw new Error("Invalid paramter!");
-        }
-        res.status(200).send(await service.take(taskId))
+        const taskId: string = String(req?.params.taskId);
+        const result = await service.take(taskId);
+        if (!result) return res.sendStatus(404);
+
+        return res.status(200).send(result)
       } catch (error) {
-        res.sendStatus(500); 
+        return res.sendStatus(500); 
       }
     },
-
   }
-
 }
 

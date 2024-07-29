@@ -2,7 +2,7 @@ import  express from "express";
 import http from "../../infra/http";
 import { bootstrap, IApp } from "../../app/bootstrap";
 import serverlessExpress from "@codegenie/serverless-express";
-import { task } from "../../app/routes/task";
+import { taskRouter } from "../../app/routes/task.router";
 import { taskHandleFactory } from "../../libs/task";
 
 let serverlessExpressInstance = null;

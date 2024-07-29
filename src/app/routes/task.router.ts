@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { ITaskController } from "../../libs/task";
 
-export function task(router: Router, controller: ITaskController) {
+export function taskRouter(router: Router, controller: ITaskController) {
   return [
     router.post("/", controller.create),
     router.put("/", controller.update),

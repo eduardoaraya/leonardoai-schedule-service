@@ -4,39 +4,40 @@ import { Request, Response } from "express";
 export interface ITaskRepository {
   list: () => Promise<ITaskBase[]>;
   query: (request: ITaskQueryRequest) => Promise<ITaskResult[]>;
-  create: (request: ITaskBase) => Promise<ITaskBase>;
-  update: (request: ITaskBase) => Promise<ITaskBase>;
-  delete: (taskId: number) => Promise<void>;
-  take: (taskId: number) => Promise<ITaskResult>;
+  create: (request: ITaskCreateRequest) => Promise<ITaskBase>;
+  update: (request: ITaskUpdateRequest, id: string) => Promise<ITaskBase>;
+  delete: (taskId: string) => Promise<boolean>;
+  take: (taskId: string) => Promise<ITaskBase|null>;
 }
 export interface ITaskService {
   list: () => Promise<ITaskResult[]>;
   query: (request: ITaskQueryRequest) => Promise<ITaskResult[]>;
   create: (request: ITaskCreateRequest) => Promise<boolean>;
-  update: (request: ITaskUpdateRequest) => Promise<boolean>;
-  delete: (taskId: number) => Promise<boolean>;
-  take: (taskId: number) => Promise<ITaskResult>;
+  update: (request: ITaskUpdateRequest, taskId: string) => Promise<boolean>;
+  delete: (taskId: string) => Promise<boolean>;
+  take: (taskId: string) => Promise<ITaskResult|null>;
 }
 export interface ITaskController {
-  list: (req: Request, res: Response) => Promise<void>;
-  query: (req: Request<ITaskQueryRequest>, res: Response) => Promise<void>;
-  create: (req: Request<ITaskCreateRequest>, res: Response) => Promise<void>;
-  update: (req: Request<ITaskUpdateRequest>, res: Response) => Promise<void>;
-  delete: (req: Request, res: Response) => Promise<void>;
-  take: (req: Request, res: Response) => Promise<void>;
+  list: (req: Request, res: Response) => Promise<Response>;
+  query: (req: Request<ITaskQueryRequest>, res: Response) => Promise<Response>;
+  create: (req: Request<ITaskCreateRequest>, res: Response) => Promise<Response>;
+  update: (req: Request<ITaskUpdateRequest>, res: Response) => Promise<Response>;
+  delete: (req: Request, res: Response) => Promise<Response>;
+  take: (req: Request, res: Response) => Promise<Response>;
 }
-export interface ITaskBase extends TaskUpdate {}
+export interface ITaskBase extends TaskBase {}
 export interface ITaskResult extends ITaskBase { }
-export interface ITaskQueryRequest extends ITaskBase { }
-export interface ITaskCreateRequest extends ITaskBase { }
-export interface ITaskUpdateRequest extends ITaskBase { }
+export interface ITaskQueryRequest extends Prisma.TaskWhereInput { }
+export interface ITaskCreateRequest extends Prisma.TaskCreateInput { }
+export interface ITaskUpdateRequest extends Prisma.TaskUpdateInput { }
 
-const taskUpdate = Prisma.validator<Prisma.TaskDefaultArgs>()({
+const taskBase = Prisma.validator<Prisma.TaskDefaultArgs>()({
   select: {
     duration: true,
-    startTime: true,
     accountId: true,
+    startTime: true,
     id: true,
   }
 });
-type TaskUpdate = Prisma.TaskGetPayload<typeof taskUpdate>;
+
+type TaskBase = Prisma.TaskGetPayload<typeof taskBase>;

@@ -2,12 +2,16 @@ import  express, { Request, Response } from "express";
 import { bootstrap, IApp } from "../app/bootstrap";
 import http from "../infra/http";
 
-import { task } from "../app/routes/task";
+// Routes
+import { taskRouter } from "../app/routes/task.router";
+import { userRouter } from "../app/routes/user.router";
+
+// Controllers
 import { taskHandleFactory } from "../libs/task";
+import { userHandleFactory } from "../libs/user";
 
 bootstrap(http)
 .then(({ server, port, apiVersion, connection }: IApp) => {
-  const router = express.Router();
 
   server.get("/", (_req: Request, res: Response) => {
     res.status(200).send({
@@ -16,7 +20,8 @@ bootstrap(http)
     })
   });
 
-  server.use("/task", task(router, taskHandleFactory(connection)));
+  server.use("/task", taskRouter(express.Router(), taskHandleFactory(connection)));
+  server.use("/user", userRouter(express.Router(), userHandleFactory(connection)));
 
   server.listen(
     port,
