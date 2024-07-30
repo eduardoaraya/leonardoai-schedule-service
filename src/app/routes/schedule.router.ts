@@ -1,16 +1,16 @@
 import { Router } from "express";
-import { userController } from "../controllers/user.controller";
-import { UserControllerHandle } from "../../libs/user/user.contracts";
+import { scheduleController } from "../controllers/schedule.controller";
+import { ScheduleControllerHandle } from "../../libs/schedule/schedule.contracts";
 
-export function userRouter(router: Router, handle: UserControllerHandle) {
-  const controller = handle(userController);
+export function scheduleRouter(router: Router, handle: ScheduleControllerHandle) {
+  const controller = handle(scheduleController);
   return [
     router.post("/", controller.create),
     router.put("/", controller.update),
     router.get("/list", controller.list),
     router.get("/search", controller.query),
-    router.get("/:userId", controller.take),
-    router.delete("/:userId", controller.delete),
+    router.get("/:scheduleId", controller.take),
+    router.delete("/:scheduleId", controller.delete),
   ];
 }
 
