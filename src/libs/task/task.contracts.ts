@@ -41,3 +41,6 @@ const taskBase = Prisma.validator<Prisma.TaskDefaultArgs>()({
 });
 
 type TaskBase = Prisma.TaskGetPayload<typeof taskBase>;
+
+export type TaskControllerFactory = (service: ITaskService) => ITaskController; 
+export type TaskControllerHandle = (factory: TaskControllerFactory) => ITaskController; 

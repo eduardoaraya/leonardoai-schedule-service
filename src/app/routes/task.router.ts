@@ -1,7 +1,9 @@
 import { Router } from "express";
-import { ITaskController } from "../../libs/task";
+import { taskController } from "../controllers/task.controller";
+import { TaskControllerHandle } from "../../libs/task";
 
-export function taskRouter(router: Router, controller: ITaskController) {
+export function taskRouter(router: Router, handle: TaskControllerHandle) {
+  const controller = handle(taskController);
   return [
     router.post("/", controller.create),
     router.put("/", controller.update),

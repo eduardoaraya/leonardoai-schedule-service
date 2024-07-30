@@ -39,3 +39,6 @@ const userBase = Prisma.validator<Prisma.UserDefaultArgs>()({
 });
 
 type UserBase = Prisma.UserGetPayload<typeof userBase>;
+
+export type UserControllerFactory = (service: IUserService) => IUserController; 
+export type UserControllerHandle = (factory: UserControllerFactory) => IUserController; 
