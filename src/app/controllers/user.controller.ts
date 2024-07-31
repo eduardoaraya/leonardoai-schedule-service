@@ -6,10 +6,8 @@ import {
   IUserUpdateRequest,
   IUserCreateRequest,
   IUserBase
-} from "../../libs/user/user.contracts"
-import debug from "debug";
-
-const log = debug("user");
+} from "@modules/user";
+import { validationResult } from "express-validator";
 
 export function userController(service: IUserService): IUserController {
   return {
@@ -23,6 +21,9 @@ export function userController(service: IUserService): IUserController {
     },
     async query(req: Request<IUserQueryRequest>, res: Response): Promise<Response> {
       try {
+        const validation = validationResult(req);
+        if (!validation.isEmpty())
+          return res.status(412).send({ errors: validation.array() });
         const result = await service.query(req.body);
         return res.status(200).send(result); 
       } catch (error) {
@@ -31,15 +32,22 @@ export function userController(service: IUserService): IUserController {
     },
     async create(req: Request<IUserCreateRequest>, res: Response): Promise<Response> {
       try {
+        const validation = validationResult(req);
+        if (!validation.isEmpty())
+          return res.status(412).send({ errors: validation.array() });
+
         await service.create(req.body);
         return res.sendStatus(201); 
       } catch (error) {
-        log(error);
         return res.status(500).send({ error });
       }
     },
     async update(req: Request<IUserUpdateRequest>, res: Response): Promise<Response> {
       try {
+        const validation = validationResult(req);
+        if (!validation.isEmpty())
+          return res.status(412).send({ errors: validation.array() });
+
         await service.update(req.body, req.body?.id);
         return res.sendStatus(201); 
       } catch (error) {

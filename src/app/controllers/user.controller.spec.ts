@@ -9,7 +9,7 @@ import {
   IUserCreateRequest,
   IUserUpdateRequest,
   IUserResult
-} from "./index";
+} from "@modules/user";
 
 describe("userController: User controller http handler request", function() {
   let userControllerInstance: IUserController;

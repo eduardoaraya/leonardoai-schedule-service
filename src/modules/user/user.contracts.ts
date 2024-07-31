@@ -35,6 +35,7 @@ const userBase = Prisma.validator<Prisma.UserDefaultArgs>()({
   select: {
     email: true,
     name: true,
+    id: true,
   }
 });
 

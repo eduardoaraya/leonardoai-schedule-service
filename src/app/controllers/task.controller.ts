@@ -6,7 +6,8 @@ import {
   ITaskUpdateRequest,
   ITaskCreateRequest,
   ITaskBase
-} from "../../libs/task/task.contracts"
+} from "@modules/task";
+import { validationResult } from "express-validator";
 
 export function taskController(service: ITaskService): ITaskController {
   return {
@@ -20,6 +21,10 @@ export function taskController(service: ITaskService): ITaskController {
     },
     async query(req: Request<ITaskQueryRequest>, res: Response): Promise<Response> {
       try {
+        const validation = validationResult(req);
+        if (!validation.isEmpty())
+          return res.status(412).send({ errors: validation.array() });
+
         const result = await service.query(req.body);
         return res.status(200).send(result); 
       } catch (error) {
@@ -28,6 +33,10 @@ export function taskController(service: ITaskService): ITaskController {
     },
     async create(req: Request<ITaskCreateRequest>, res: Response): Promise<Response> {
       try {
+        const validation = validationResult(req);
+        if (!validation.isEmpty())
+          return res.status(412).send({ errors: validation.array() });
+
         await service.create(req.body);
         return res.sendStatus(201); 
       } catch (error) {
@@ -36,6 +45,10 @@ export function taskController(service: ITaskService): ITaskController {
     },
     async update(req: Request<ITaskUpdateRequest>, res: Response): Promise<Response> {
       try {
+        const validation = validationResult(req);
+        if (!validation.isEmpty())
+          return res.status(412).send({ errors: validation.array() });
+
         await service.update(req.body, req.body?.id);
         return res.sendStatus(201); 
       } catch (error) {

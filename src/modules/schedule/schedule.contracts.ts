@@ -1,5 +1,6 @@
 import { Prisma } from "@prisma/client";
 import { Request, Response } from "express";
+import { IUserService } from "../user";
 
 export interface IScheduleRepository {
   list: () => Promise<IScheduleBase[]>;
@@ -12,10 +13,12 @@ export interface IScheduleRepository {
 export interface IScheduleService {
   list: () => Promise<IScheduleResult[]>;
   query: (request: IScheduleQueryRequest) => Promise<IScheduleResult[]>;
-  create: (request: IScheduleCreateRequest) => Promise<boolean>;
+  create: (request: IScheduleCreateRequest) => Promise<IScheduleResult>;
   update: (request: IScheduleUpdateRequest, scheduleId: string) => Promise<boolean>;
   delete: (scheduleId: string) => Promise<boolean>;
   take: (scheduleId: string) => Promise<IScheduleResult|null>;
+
+  validateStartandEndTimes(startTime: Date, endTime: Date): boolean;
 }
 export interface IScheduleController {
   list: (req: Request, res: Response) => Promise<Response>;
@@ -28,7 +31,7 @@ export interface IScheduleController {
 export interface IScheduleBase extends ScheduleBase {}
 export interface IScheduleResult extends IScheduleBase { }
 export interface IScheduleQueryRequest extends Prisma.ScheduleWhereInput { }
-export interface IScheduleCreateRequest extends Prisma.ScheduleCreateInput { }
+export interface IScheduleCreateRequest extends Prisma.ScheduleUncheckedCreateInput { }
 export interface IScheduleUpdateRequest extends Prisma.ScheduleUpdateInput { }
 
 const scheduleBase = Prisma.validator<Prisma.ScheduleDefaultArgs>()({
@@ -37,5 +40,5 @@ const scheduleBase = Prisma.validator<Prisma.ScheduleDefaultArgs>()({
 
 type ScheduleBase = Prisma.ScheduleGetPayload<typeof scheduleBase>;
 
-export type ScheduleControllerFactory = (service: IScheduleService) => IScheduleController; 
+export type ScheduleControllerFactory = (service: IScheduleService, userService: IUserService) => IScheduleController; 
 export type ScheduleControllerHandle = (factory: ScheduleControllerFactory) => IScheduleController; 

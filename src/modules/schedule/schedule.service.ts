@@ -9,6 +9,9 @@ import {
 
 export function scheduleService(repository: IScheduleRepository): IScheduleService {
   return {
+    validateStartandEndTimes(startTime: Date, endTime: Date): boolean {
+      return startTime.getTime() >= endTime.getTime();
+    },
     async list(): Promise<IScheduleBase[]>  {
       return repository.list();
     },
@@ -16,8 +19,12 @@ export function scheduleService(repository: IScheduleRepository): IScheduleServi
       return repository.query(request);
     },
     async create(request: IScheduleCreateRequest) { 
-      await repository.create(request);
-      return true;
+      return await repository.create({
+        accountId: request.accountId,
+        agentId: request.agentId,
+        startTime: request.startTime,
+        endTime: request.endTime
+      });
     },
     async update(request: IScheduleUpdateRequest, scheduleId: string) { 
       await repository.update(request, scheduleId);

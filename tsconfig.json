@@ -9,8 +9,17 @@
     "forceConsistentCasingInFileNames": true,            /* Ensure that casing is correct in imports. */
     "strict": true,                                      /* Enable all strict type-checking options. */
     "skipLibCheck": true,                                 /* Skip type checking all .d.ts files. */
-    "paths": {}
+    "paths": {
+      "@modules/*": ["./src/modules/*"],
+      "@app/controllers/*": ["./src/app/controllers/*"],
+      "@app/services/*": ["./src/app/services/*"],
+      "@app/routes": ["./src/app/routes/index.ts", "src/app/routes/*"],
+      "@infra/*": ["./src/infra/*"]
+    }
   },
- "include": ["src/**/*"],
- "exclude": ["node_modules", "src/**/*.spec.ts", "src/bin/serverless"]
+  "ts-node": {
+    "require": ["tsconfig-paths/register"]
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "src/**/*.spec.ts", "src/bin/serverless", "_build/"]
 }

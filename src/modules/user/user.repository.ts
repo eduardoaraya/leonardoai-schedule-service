@@ -16,7 +16,7 @@ export function userRepository(dbConnection: PrismaClient): IUserRepository {
       return dbConnection.user.findMany({ where });
     },
     async create(data: IUserCreateRequest): Promise<IUserBase> {
-      return dbConnection.user.create({ data, select: { email: true, name: true } });
+      return dbConnection.user.create({ data });
     },
     async update(data: IUserUpdateRequest, id: number): Promise<IUserBase> { 
       return dbConnection.user.update({ 

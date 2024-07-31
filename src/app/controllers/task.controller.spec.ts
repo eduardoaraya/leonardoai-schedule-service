@@ -9,7 +9,7 @@ import {
   ITaskCreateRequest,
   ITaskUpdateRequest,
   ITaskResult
-} from "./index";
+} from "@modules/task";
 
 describe("taskController: Task controller http handler request", function() {
   let taskControllerInstance: ITaskController;
