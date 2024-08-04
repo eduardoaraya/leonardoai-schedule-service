@@ -1,15 +1,16 @@
 import { 
   IUserRepository,
-  IUserBase,
+  IUser,
   IUserCreateRequest,
   IUserUpdateRequest,
   IUserQueryRequest,
-  IUserService
+  IUserService,
+  IUserSelect
 } from "./user.contracts";
 
 export function userService(repository: IUserRepository): IUserService {
   return {
-    async list(): Promise<IUserBase[]>  {
+    async list(): Promise<IUser[]>  {
       return repository.list();
     },
     async query(request: IUserQueryRequest) { 
@@ -26,8 +27,9 @@ export function userService(repository: IUserRepository): IUserService {
     async delete(userId: number) {
       return repository.delete(userId);
     },
-    async take(userId: number) {
-      return repository.take(userId);
+    async getById(userId: number, select?: IUserSelect) {
+
+      return repository.getById(userId, select);
     }
   }
 };

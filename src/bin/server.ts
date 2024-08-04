@@ -8,7 +8,7 @@ import { scheduleRouter, userRouter, taskRouter } from "@app/routes";
 // Controllers
 import { taskHandleFactory } from "@modules/task";
 import { userHandleFactory } from "@modules/user";
-import { scheduleHandleFactory } from "@modules/schedule";
+import { scheduleModule } from "@modules/schedule";
 
 bootstrap(http)
   .then(({ server, port, apiVersion, connection }: IApp) => {
@@ -21,7 +21,7 @@ bootstrap(http)
     });
 
     server.use("/task", taskRouter(express.Router(), taskHandleFactory(connection)));
-    server.use("/schedule", scheduleRouter(express.Router(), scheduleHandleFactory(connection)));
+    server.use("/schedule", scheduleRouter(express.Router(), scheduleModule(connection)));
     server.use("/user", userRouter(express.Router(), userHandleFactory(connection)));
 
     server.listen(

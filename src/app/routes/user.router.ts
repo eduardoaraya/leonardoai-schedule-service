@@ -9,7 +9,7 @@ export function userRouter(router: Router, handle: UserControllerHandle) {
     router.put("/", userRequestValidator, controller.update),
     router.get("/search", userRequestValidator, controller.query),
     router.get("/list", controller.list),
-    router.get("/:userId", controller.take),
+    router.get("/:userId", controller.getById),
     router.delete("/:userId", controller.delete),
   ];
 }

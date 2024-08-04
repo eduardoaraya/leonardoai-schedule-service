@@ -9,7 +9,7 @@ export function taskRouter(router: Router, handle: TaskControllerHandle) {
     router.put("/", taskRequestValidator, controller.update),
     router.get("/search", taskRequestValidator, controller.query),
     router.get("/list", controller.list),
-    router.get("/:taskId", controller.take),
+    router.get("/:taskId", controller.getById),
     router.delete("/:taskId", controller.delete),
   ];
 }

@@ -7,7 +7,7 @@ export interface ITaskRepository {
   create: (request: ITaskCreateRequest) => Promise<ITaskBase>;
   update: (request: ITaskUpdateRequest, id: string) => Promise<ITaskBase>;
   delete: (taskId: string) => Promise<boolean>;
-  take: (taskId: string) => Promise<ITaskBase|null>;
+  getById: (taskId: string) => Promise<ITaskBase|null>;
 }
 export interface ITaskService {
   list: () => Promise<ITaskResult[]>;
@@ -15,7 +15,7 @@ export interface ITaskService {
   create: (request: ITaskCreateRequest) => Promise<boolean>;
   update: (request: ITaskUpdateRequest, taskId: string) => Promise<boolean>;
   delete: (taskId: string) => Promise<boolean>;
-  take: (taskId: string) => Promise<ITaskResult|null>;
+  getById: (taskId: string) => Promise<ITaskResult|null>;
 }
 export interface ITaskController {
   list: (req: Request, res: Response) => Promise<Response>;
@@ -23,7 +23,7 @@ export interface ITaskController {
   create: (req: Request<ITaskCreateRequest>, res: Response) => Promise<Response>;
   update: (req: Request<ITaskUpdateRequest>, res: Response) => Promise<Response>;
   delete: (req: Request, res: Response) => Promise<Response>;
-  take: (req: Request, res: Response) => Promise<Response>;
+  getById: (req: Request, res: Response) => Promise<Response>;
 }
 export interface ITaskBase extends TaskBase {}
 export interface ITaskResult extends ITaskBase { }

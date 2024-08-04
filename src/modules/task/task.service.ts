@@ -26,8 +26,8 @@ export function taskService(repository: ITaskRepository): ITaskService {
     async delete(taskId: string) {
       return repository.delete(taskId);
     },
-    async take(taskId: string) {
-      return repository.take(taskId);
+    async getById(taskId: string) {
+      return repository.getById(taskId);
     }
   }
 };

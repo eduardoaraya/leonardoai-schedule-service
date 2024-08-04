@@ -5,7 +5,7 @@ import {
   IUserQueryRequest,
   IUserUpdateRequest,
   IUserCreateRequest,
-  IUserBase
+  IUser
 } from "@modules/user";
 import { validationResult } from "express-validator";
 
@@ -67,13 +67,13 @@ export function userController(service: IUserService): IUserController {
         return res.sendStatus(500);
       }
     },
-    async take(req: Request, res: Response<IUserBase>): Promise<Response> {
+    async getById(req: Request, res: Response<IUser>): Promise<Response> {
       try {
         const userId: number = Number(req?.params.userId);
         if (userId < 0 || userId >= Number.MAX_SAFE_INTEGER)
           throw new Error("Invalid paramter!");
  
-        const user = await service.take(userId);
+        const user = await service.getById(userId);
         if (!user) return res.sendStatus(404);
 
         return res.status(200).send(user);

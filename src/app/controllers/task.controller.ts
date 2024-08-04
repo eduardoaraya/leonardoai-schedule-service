@@ -61,7 +61,7 @@ export function taskController(service: ITaskService): ITaskController {
         if (!taskId)
           throw new Error("Invalid paramter!");
  
-        const result = await service.take(taskId);
+        const result = await service.getById(taskId);
         if (!result) return res.sendStatus(404);
 
         await service.delete(taskId)
@@ -70,10 +70,10 @@ export function taskController(service: ITaskService): ITaskController {
         return res.sendStatus(500);
       }
     },
-    async take(req: Request, res: Response<ITaskBase>): Promise<Response> {
+    async getById(req: Request, res: Response<ITaskBase>): Promise<Response> {
       try {
         const taskId: string = String(req?.params.taskId);
-        const result = await service.take(taskId);
+        const result = await service.getById(taskId);
         if (!result) return res.sendStatus(404);
 
         return res.status(200).send(result)

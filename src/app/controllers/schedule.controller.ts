@@ -7,13 +7,10 @@ import {
   IScheduleCreateRequest,
   IScheduleBase
 } from "@modules/schedule";
-import { 
-  IUserService
-} from "@modules/user";
 import { validationResult } from "express-validator";
 import { StatusCodes } from "http-status-codes";
 
-export function scheduleController(service: IScheduleService, userService: IUserService): IScheduleController {
+export function scheduleController(service: IScheduleService): IScheduleController {
   return {
     async list(_req: Request, res: Response): Promise<Response> {
       try {
@@ -40,30 +37,29 @@ export function scheduleController(service: IScheduleService, userService: IUser
         const validation = validationResult(req);
 
         if (!validation.isEmpty())
-          return res.status(StatusCodes.PRECONDITION_FAILED).send({ errors: validation.array() });
+          return res.status(StatusCodes.PRECONDITION_FAILED)
+                    .send({ errors: validation.array() });
 
-        const { body } = req;
-        const startTime = new Date(body.startTime);
-        const endTime = new Date(body.endTime);
+        const { startTime, endTime, account, agent } = req.body;
+        const hasConflicting = await Promise.all([
+          service.hasConflictingAppointments(agent, startTime, endTime),
+          service.hasConflictingAppointments(account, startTime, endTime)
+        ]);
 
-        if (!service.validateStartandEndTimes(startTime, endTime))
-          return res.status(StatusCodes.PRECONDITION_FAILED).send({ errors: "Invalid startTime!" });
+        if (hasConflicting.includes(true)) 
+          return res.status(StatusCodes.NOT_ACCEPTABLE)
+                    .send({ errors: { msg: "There's conflicting appointments!"} });
 
-  
-        const account = await userService.take(body.accountId);
-        const agent = await userService.take(body.agentId);
+        const schedule = await service.create(
+          account,
+          agent,
+          {
+            startTime,
+            endTime,
+          }
+        );
 
-        if (!account || !agent || account.id === agent.id)
-          return res.status(StatusCodes.PRECONDITION_FAILED).send({ errors: "Invalid account or agent!" });
-
-        const schedule = await service.create({
-          startTime,
-          endTime,
-          accountId: account.id,
-          agentId: agent.id,
-        });
-
-        return res.status(201).send(schedule);
+        return res.status(StatusCodes.CREATED).send(schedule);
       } catch (error: unknown) {
         return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({ 
           error: error instanceof Error ? error?.message : "Internal server error!"
@@ -77,7 +73,7 @@ export function scheduleController(service: IScheduleService, userService: IUser
           return res.status(StatusCodes.PRECONDITION_FAILED).send({ errors: validation.array() });
 
         await service.update(req.body, req.body?.id);
-        return res.sendStatus(201); 
+        return res.sendStatus(StatusCodes.OK); 
       } catch (error) {
         return res.sendStatus(StatusCodes.INTERNAL_SERVER_ERROR);
       }
@@ -88,23 +84,23 @@ export function scheduleController(service: IScheduleService, userService: IUser
         if (!scheduleId)
           throw new Error("Invalid paramter!");
         
-        const schedule = await service.take(scheduleId);
-        if (!schedule) return res.sendStatus(404);
+        const schedule = await service.getById(scheduleId);
+        if (!schedule) return res.sendStatus(StatusCodes.NOT_FOUND);
 
         await service.delete(scheduleId)
-        return res.sendStatus(201); 
+        return res.sendStatus(StatusCodes.OK); 
       } catch (error) {
         return res.sendStatus(StatusCodes.INTERNAL_SERVER_ERROR);
       }
     },
-    async take(req: Request, res: Response<IScheduleBase>): Promise<Response> {
+    async getById(req: Request, res: Response<IScheduleBase>): Promise<Response> {
       try {
         const scheduleId: string = String(req?.params.scheduleId);
         if (!scheduleId)
           throw new Error("Invalid paramter!");
         
-        const schedule = await service.take(scheduleId);
-        if (!schedule) return res.sendStatus(404);
+        const schedule = await service.getById(scheduleId);
+        if (!schedule) return res.sendStatus(StatusCodes.NOT_FOUND);
 
         return res.status(StatusCodes.OK).send(schedule);
       } catch (error) {

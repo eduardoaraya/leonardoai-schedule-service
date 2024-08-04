@@ -1,24 +1,25 @@
 import { PrismaClient } from "@prisma/client";
 import { 
-  IUserBase,
+  IUser,
   IUserQueryRequest,
   IUserRepository,
   IUserCreateRequest,
-  IUserUpdateRequest
+  IUserUpdateRequest,
+  IUserSelect
 } from "./user.contracts";
 
 export function userRepository(dbConnection: PrismaClient): IUserRepository {
   return {
-    async list(): Promise<IUserBase[]> {
+    async list(): Promise<IUser[]> {
       return dbConnection.user.findMany();
     },
-    async query(where: IUserQueryRequest): Promise<IUserBase[]> { 
+    async query(where: IUserQueryRequest): Promise<IUser[]> { 
       return dbConnection.user.findMany({ where });
     },
-    async create(data: IUserCreateRequest): Promise<IUserBase> {
+    async create(data: IUserCreateRequest): Promise<IUser> {
       return dbConnection.user.create({ data });
     },
-    async update(data: IUserUpdateRequest, id: number): Promise<IUserBase> { 
+    async update(data: IUserUpdateRequest, id: number): Promise<IUser> { 
       return dbConnection.user.update({ 
         data, 
         where: { id }
@@ -30,9 +31,12 @@ export function userRepository(dbConnection: PrismaClient): IUserRepository {
       });
       return true;
     },
-    async take(id: number): Promise<IUserBase|null> {
+    async getById(id: number, select?: IUserSelect): Promise<IUser|null> {
+      if (!id) throw new Error("Id parameter is missing!");
+
       return dbConnection.user.findUnique({
-        where: { id }
+        where: { id },
+        select
       });
     }
   }

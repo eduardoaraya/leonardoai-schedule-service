@@ -30,7 +30,7 @@ export function taskRepository(dbConnection: PrismaClient): ITaskRepository {
       });
       return true;
     },
-    async take(id: string): Promise<ITaskBase|null> {
+    async getById(id: string): Promise<ITaskBase|null> {
       return dbConnection.task.findUnique({
         where: { id }
       });

@@ -2,7 +2,7 @@ import { PrismaClient } from "@prisma/client";
 
 let dbConnectionCached: PrismaClient | null = null;
 
-export async function dbConnection(production: boolean) {
+export async function dbConnection(production: boolean = true) {
   try {
     if (!dbConnectionCached) { 
       dbConnectionCached = new PrismaClient({

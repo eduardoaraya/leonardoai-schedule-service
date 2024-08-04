@@ -30,7 +30,7 @@ export function scheduleRepository(dbConnection: PrismaClient): IScheduleReposit
       });
       return true;
     },
-    async take(id: string): Promise<IScheduleBase|null> {
+    async getById(id: string): Promise<IScheduleBase|null> {
       return dbConnection.schedule.findUnique({
         where: { id }
       });
