@@ -1,16 +1,15 @@
 import { 
-  IScheduleRepository,
-  IScheduleBase,
-  IScheduleCreateRequest,
   IScheduleUpdateRequest,
-  IScheduleQueryRequest,
+  IScheduleRepository,
+  IScheduleCreateRequest,
+  IScheduleFilterRequest,
   IScheduleService,
 } from "./schedule.contracts";
-import { IUser } from "@modules/user";
+import { IUserBase } from "@modules/user";
 
 export function scheduleService(repository: IScheduleRepository): IScheduleService {
   return {
-    async hasConflictingAppointments(user: IUser, startTime: Date | string, endTime: Date | string): Promise<boolean> {
+    async hasConflictingAppointments(user: IUserBase, startTime: Date | string, endTime: Date | string): Promise<boolean> {
       const betweenDates = {
         lte: new Date(endTime),
         gte: new Date(startTime),
@@ -27,26 +26,37 @@ export function scheduleService(repository: IScheduleRepository): IScheduleServi
           }
         ]
       });
-
       return result.length > 0;
     },
-    async list(): Promise<IScheduleBase[]>  {
-      return repository.list();
+    async filter({ accountId, agentId, startTime, endTime }: IScheduleFilterRequest) { 
+      const betweenDates = {
+        lte: new Date(endTime),
+        gte: new Date(startTime),
+      };
+      return repository.query({
+        OR: [
+          { accountId: Number.isNaN(accountId) ? undefined : accountId },
+          { agentId: Number.isNaN(agentId) ? undefined : agentId  },
+          { startTime: betweenDates },
+          { endTime: betweenDates }
+        ]
+      });
     },
-    async query(request: IScheduleQueryRequest) { 
-      return repository.query(request);
-    },
-    async create(account: IUser, agent: IUser, request: Pick<IScheduleCreateRequest, "startTime" | "endTime">) { 
-      return await repository.create({
+    async create(account: IUserBase, agent: IUserBase, request: Pick<IScheduleCreateRequest, "startTime" | "endTime">) { 
+      return repository.create({
         accountId: account.id,
         agentId: agent.id,
         startTime: request.startTime,
         endTime: request.endTime
       });
     },
-    async update(request: IScheduleUpdateRequest, scheduleId: string) { 
-      await repository.update(request, scheduleId);
-      return true;
+    async update(scheduleId: string, account: IUserBase, agent: IUserBase, request: IScheduleUpdateRequest) { 
+      return repository.update(scheduleId, {
+        accountId: account.id,
+        agentId: agent.id,
+        startTime: request.startTime,
+        endTime: request.endTime
+      });
     },
     async delete(scheduleId: string) {
       return repository.delete(scheduleId);

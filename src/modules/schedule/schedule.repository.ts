@@ -4,35 +4,38 @@ import {
   IScheduleQueryRequest,
   IScheduleRepository,
   IScheduleCreateRequest,
-  IScheduleUpdateRequest
+  IScheduleUpdateRequest,
+  IScheduleSelect
 } from "./schedule.contracts";
 
 export function scheduleRepository(dbConnection: PrismaClient): IScheduleRepository {
   return {
-    async list(): Promise<IScheduleBase[]> {
-      return dbConnection.schedule.findMany();
+    async query(where: IScheduleQueryRequest, select?: IScheduleSelect): Promise<IScheduleBase[]> { 
+      return dbConnection.schedule.findMany({ where, select });
     },
-    async query(where: IScheduleQueryRequest): Promise<IScheduleBase[]> { 
-      return dbConnection.schedule.findMany({ where });
+    async create(data: IScheduleCreateRequest, select?: IScheduleSelect): Promise<IScheduleBase> {
+      return dbConnection.schedule.create({ data, select });
     },
-    async create(data: IScheduleCreateRequest): Promise<IScheduleBase> {
-      return dbConnection.schedule.create({ data });
-    },
-    async update(data: IScheduleUpdateRequest, id: string): Promise<IScheduleBase> { 
+    async update(id: string, data: IScheduleUpdateRequest, select?: IScheduleSelect): Promise<IScheduleBase> { 
+      if (!id) throw new Error("Id parameter is missing!");
       return dbConnection.schedule.update({ 
         data, 
-        where: { id }
+        where: { id },
+        select
       });
     },
     async delete(id: string): Promise<boolean> {
+      if (!id) throw new Error("Id parameter is missing!");
       await dbConnection.schedule.delete({
         where: { id }
       });
       return true;
     },
-    async getById(id: string): Promise<IScheduleBase|null> {
+    async getById(id: string, select?: IScheduleSelect): Promise<IScheduleBase|null> {
+      if (!id) throw new Error("Id parameter is missing!");
       return dbConnection.schedule.findUnique({
-        where: { id }
+        where: { id },
+        select
       });
     }
   }

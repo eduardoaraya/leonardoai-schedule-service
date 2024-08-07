@@ -1,14 +1,13 @@
 import { Router } from "express";
 import { userController } from "@app/controllers/user.controller";
-import { UserControllerHandle, userRequestValidator } from "@modules/user";
+import { IUserModule, createSchema, updateSchema, searchSchema } from "@modules/user";
 
-export function userRouter(router: Router, handle: UserControllerHandle) {
-  const controller = handle(userController);
+export function userRouter(router: Router, module: IUserModule) {
+  const controller = userController(module);
   return [
-    router.post("/", userRequestValidator, controller.create),
-    router.put("/", userRequestValidator, controller.update),
-    router.get("/search", userRequestValidator, controller.query),
-    router.get("/list", controller.list),
+    router.get("/", searchSchema(), controller.filter),
+    router.post("/", createSchema(module), controller.create),
+    router.put("/", updateSchema(module), controller.update),
     router.get("/:userId", controller.getById),
     router.delete("/:userId", controller.delete),
   ];

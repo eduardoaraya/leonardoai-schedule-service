@@ -1,84 +1,87 @@
 import { Request, Response } from "express";
+import { StatusCodes } from "http-status-codes";
 import { 
-  IUserService,
+  IUserModule,
   IUserController,
   IUserQueryRequest,
   IUserUpdateRequest,
   IUserCreateRequest,
-  IUser
 } from "@modules/user";
 import { validationResult } from "express-validator";
+import { responseError } from  "@infra/http-utils";
 
-export function userController(service: IUserService): IUserController {
+export function userController({ service }: IUserModule): IUserController {
   return {
-    async list(_req: Request, res: Response): Promise<Response> {
-      try {
-        const result = await service.list();
-        return res.status(200).send(result); 
-      } catch (error) {
-        return res.sendStatus(500); 
-      }
-    },
-    async query(req: Request<IUserQueryRequest>, res: Response): Promise<Response> {
+    async filter(req: Request<IUserQueryRequest>, res: Response): Promise<Response> {
       try {
         const validation = validationResult(req);
         if (!validation.isEmpty())
-          return res.status(412).send({ errors: validation.array() });
-        const result = await service.query(req.body);
-        return res.status(200).send(result); 
+          return res.status(StatusCodes.PRECONDITION_FAILED).send({ errors: validation.array() });
+
+        const { email, name } = req.query;
+        const result = await service.filter({ 
+          email: email?.toString(),
+          name: name?.toString()
+        });
+
+        return res.status(StatusCodes.OK).send(result); 
       } catch (error) {
-        return res.sendStatus(500); 
+        return responseError(res, error);
       }
     },
     async create(req: Request<IUserCreateRequest>, res: Response): Promise<Response> {
       try {
         const validation = validationResult(req);
         if (!validation.isEmpty())
-          return res.status(412).send({ errors: validation.array() });
+          return res.status(StatusCodes.PRECONDITION_FAILED).send({ errors: validation.array() });
 
-        await service.create(req.body);
-        return res.sendStatus(201); 
+        const user = await service.create(req.body);
+        return res.status(StatusCodes.CREATED).send({ user });
       } catch (error) {
-        return res.status(500).send({ error });
+        return responseError(res, error);
       }
     },
     async update(req: Request<IUserUpdateRequest>, res: Response): Promise<Response> {
       try {
         const validation = validationResult(req);
         if (!validation.isEmpty())
-          return res.status(412).send({ errors: validation.array() });
+          return res.status(StatusCodes.PRECONDITION_FAILED).send({ errors: validation.array() });
 
-        await service.update(req.body, req.body?.id);
-        return res.sendStatus(201); 
+        const { email, name } = req.body;
+
+        const result = await service.update(req.body?.userId, { email, name });
+        return res.status(StatusCodes.ACCEPTED).send({ user: result });
       } catch (error) {
-        return res.sendStatus(500);
+        return responseError(res, error);
       }
     },
     async delete(req: Request, res: Response): Promise<Response> {
       try {
-        const userId: number = Number(req?.params.userId);
-        if (userId < 0 || userId >= Number.MAX_SAFE_INTEGER)
-          throw new Error("Invalid paramter!");
+        const userId: number = Number(req?.params?.userId);
+        if (!userId || userId >= Number.MAX_SAFE_INTEGER)
+          return res.status(StatusCodes.PRECONDITION_FAILED).send({ error: "Invalid userId!" });
         
+        const user = await service.getById(userId);
+        if (!user) return res.sendStatus(StatusCodes.NOT_FOUND);
 
-        await service.delete(userId)
-        return res.sendStatus(201); 
+        await service.delete(userId);
+        return res.sendStatus(StatusCodes.ACCEPTED); 
       } catch (error) {
-        return res.sendStatus(500);
+        return responseError(res, error);
       }
     },
-    async getById(req: Request, res: Response<IUser>): Promise<Response> {
+    async getById(req: Request, res: Response): Promise<Response> {
       try {
-        const userId: number = Number(req?.params.userId);
-        if (userId < 0 || userId >= Number.MAX_SAFE_INTEGER)
-          throw new Error("Invalid paramter!");
+        const userId: number = Number(req?.params?.userId);
+        if (!userId || userId >= Number.MAX_SAFE_INTEGER)
+          return res.status(StatusCodes.PRECONDITION_FAILED).send({ error: "Invalid userId!" });
  
         const user = await service.getById(userId);
-        if (!user) return res.sendStatus(404);
+        if (!user) return res.sendStatus(StatusCodes.NOT_FOUND);
 
-        return res.status(200).send(user);
+        return res.status(StatusCodes.OK).send(user);
       } catch (error) {
-        return res.sendStatus(500); 
+        return responseError(res, error);
       }
     },
   }

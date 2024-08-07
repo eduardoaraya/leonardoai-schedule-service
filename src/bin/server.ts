@@ -5,9 +5,9 @@ import http from "../infra/http";
 // Routes
 import { scheduleRouter, userRouter, taskRouter } from "@app/routes";
 
-// Controllers
-import { taskHandleFactory } from "@modules/task";
-import { userHandleFactory } from "@modules/user";
+// Modules
+import { taskModule } from "@modules/task";
+import { userModule } from "@modules/user";
 import { scheduleModule } from "@modules/schedule";
 
 bootstrap(http)
@@ -20,9 +20,9 @@ bootstrap(http)
       })
     });
 
-    server.use("/task", taskRouter(express.Router(), taskHandleFactory(connection)));
-    server.use("/schedule", scheduleRouter(express.Router(), scheduleModule(connection)));
-    server.use("/user", userRouter(express.Router(), userHandleFactory(connection)));
+    server.use("/tasks", taskRouter(express.Router(), taskModule(connection)));
+    server.use("/schedules", scheduleRouter(express.Router(), scheduleModule(connection)));
+    server.use("/users", userRouter(express.Router(), userModule(connection)));
 
     server.listen(
       port,

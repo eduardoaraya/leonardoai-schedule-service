@@ -6,13 +6,12 @@ export async function dbConnection(production: boolean = true) {
   try {
     if (!dbConnectionCached) { 
       dbConnectionCached = new PrismaClient({
-        log: production ? [] : ["info", "query"]
+        log: production ? [] : ["info", "query"],
       });
     }
     await dbConnectionCached.$connect();
     return dbConnectionCached;
   } catch (_err) {
-    console.error(_err); // TODO: To Remove
     throw new Error("Internal Server Error: Error DB Connection");
   }
 }

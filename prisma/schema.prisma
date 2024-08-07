@@ -18,16 +18,16 @@ model User {
 
 model Schedule {
   id          String @id @default(uuid())
-  account     User @relation("UserAccount", fields: [accountId], references: [id])
+  account     User @relation("UserAccount", fields: [accountId], references: [id], onDelete: Cascade)
   accountId   Int 
 
-  agent       User @relation("UserAgent", fields: [agentId], references: [id])
+  agent       User @relation("UserAgent", fields: [agentId], references: [id], onDelete: Cascade)
   agentId     Int 
 
   startTime   DateTime
   endTime     DateTime
 
-  tasks     Task?
+  tasks       Task[]
 
   createdAt   DateTime @default(now())
   updatedAt   DateTime @default(now())
@@ -42,13 +42,13 @@ enum TaskType {
 model Task {
   id              String @id @default(uuid())
 
-  account         User @relation(fields: [accountId], references: id)
+  account         User @relation(fields: [accountId], references: id, onDelete: Cascade)
   accountId       Int @unique
 
-  schedule        Schedule @relation(fields: [scheduleId], references: id)
+  schedule        Schedule @relation(fields: [scheduleId], references: id, onDelete: Cascade)
   scheduleId      String @unique
 
-  startTime       String
+  startTime       DateTime
   duration        Int
   type            TaskType
 

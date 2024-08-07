@@ -3,36 +3,39 @@ import {
   ITaskBase,
   ITaskQueryRequest,
   ITaskRepository,
-  ITaskCreateRequest,
-  ITaskUpdateRequest
+  ITaskCreate,
+  ITaskUpdateRequest,
+  ITaskSelect
 } from "./task.contracts";
 
 export function taskRepository(dbConnection: PrismaClient): ITaskRepository {
   return {
-    async list(): Promise<ITaskBase[]> {
-      return dbConnection.task.findMany();
+    async query(where: ITaskQueryRequest, select?: ITaskSelect): Promise<ITaskBase[]> { 
+      return dbConnection.task.findMany({ where, select });
     },
-    async query(where: ITaskQueryRequest): Promise<ITaskBase[]> { 
-      return dbConnection.task.findMany({ where });
+    async create(data: ITaskCreate, select?: ITaskSelect): Promise<ITaskBase> {
+      return dbConnection.task.create({ data, select });
     },
-    async create(data: ITaskCreateRequest): Promise<ITaskBase> {
-      return dbConnection.task.create({ data });
-    },
-    async update(data: ITaskUpdateRequest, id: string): Promise<ITaskBase> { 
+    async update(id: string, data: ITaskUpdateRequest, select?: ITaskSelect): Promise<ITaskBase> { 
+      if (!id) throw new Error("Id parameter is missing!");
       return dbConnection.task.update({ 
         data, 
-        where: { id }
+        where: { id },
+        select
       });
     },
     async delete(id: string): Promise<boolean> {
+      if (!id) throw new Error("Id parameter is missing!");
       await dbConnection.task.delete({
         where: { id }
       });
       return true;
     },
-    async getById(id: string): Promise<ITaskBase|null> {
+    async getById(id: string, select?: ITaskSelect): Promise<ITaskBase|null> {
+      if (!id) throw new Error("Id parameter is missing!");
       return dbConnection.task.findUnique({
-        where: { id }
+        where: { id },
+        select
       });
     }
   }

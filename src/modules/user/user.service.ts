@@ -1,6 +1,6 @@
 import { 
   IUserRepository,
-  IUser,
+  IUserBase,
   IUserCreateRequest,
   IUserUpdateRequest,
   IUserQueryRequest,
@@ -10,25 +10,21 @@ import {
 
 export function userService(repository: IUserRepository): IUserService {
   return {
-    async list(): Promise<IUser[]>  {
-      return repository.list();
+    async filter({ email, name }: Pick<IUserQueryRequest, "email"|"name">): Promise<IUserBase[]> { 
+      return repository.query({
+        OR: [{ email }, { name }]
+      });
     },
-    async query(request: IUserQueryRequest) { 
-      return repository.query(request);
+    async create(request: IUserCreateRequest): Promise<IUserBase> { 
+      return repository.create(request, { name: true, email: true });
     },
-    async create(request: IUserCreateRequest) { 
-      await repository.create(request);
-      return true;
+    async update(userId: number, request: IUserUpdateRequest): Promise<IUserBase> { 
+      return repository.update(userId, request, { name: true, email: true });
     },
-    async update(request: IUserUpdateRequest, userId: number) { 
-      await repository.update(request, userId);
-      return true;
-    },
-    async delete(userId: number) {
+    async delete(userId: number): Promise<boolean> {
       return repository.delete(userId);
     },
-    async getById(userId: number, select?: IUserSelect) {
-
+    async getById(userId: number, select?: IUserSelect): Promise<IUserBase|null> {
       return repository.getById(userId, select);
     }
   }

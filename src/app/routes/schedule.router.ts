@@ -1,15 +1,13 @@
 import { Router } from "express";
-import { IScheduleModule, scheduleRequestValidator } from "@modules/schedule";
 import { scheduleController } from "@app/controllers/schedule.controller";
+import { IScheduleModule, createSchema, updateSchema, searchSchema } from "@modules/schedule";
 
-export function scheduleRouter(router: Router, { userService, service }: IScheduleModule) {
-  const controller = scheduleController(service);
-  const middlewareValidator = scheduleRequestValidator(userService);
+export function scheduleRouter(router: Router, module: IScheduleModule) {
+  const controller = scheduleController(module);
   return [
-    router.post("/", middlewareValidator, controller.create),
-    router.put("/", middlewareValidator, controller.update),
-    router.get("/search", middlewareValidator, controller.query),
-    router.get("/list", controller.list),
+    router.get("/", searchSchema(), controller.filter),
+    router.post("/", createSchema(module), controller.create),
+    router.put("/", updateSchema(module), controller.update),
     router.get("/:scheduleId", controller.getById),
     router.delete("/:scheduleId", controller.delete),
   ];

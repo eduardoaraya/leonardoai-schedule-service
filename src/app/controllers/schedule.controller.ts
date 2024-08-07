@@ -1,35 +1,35 @@
 import { Request, Response } from "express";
 import { 
-  IScheduleService,
+  IScheduleModule,
   IScheduleController,
   IScheduleQueryRequest,
-  IScheduleUpdateRequest,
   IScheduleCreateRequest,
-  IScheduleBase
 } from "@modules/schedule";
 import { validationResult } from "express-validator";
 import { StatusCodes } from "http-status-codes";
+import { responseError } from  "@infra/http-utils";
 
-export function scheduleController(service: IScheduleService): IScheduleController {
+export function scheduleController({ service }: IScheduleModule): IScheduleController {
   return {
-    async list(_req: Request, res: Response): Promise<Response> {
-      try {
-        const result = await service.list();
-        return res.status(StatusCodes.OK).send(result); 
-      } catch (error) {
-        return res.sendStatus(StatusCodes.INTERNAL_SERVER_ERROR); 
-      }
-    },
-    async query(req: Request<IScheduleQueryRequest>, res: Response): Promise<Response> {
+    async filter(req: Request<IScheduleQueryRequest>, res: Response): Promise<Response> {
       try {
         const validation = validationResult(req);
         if (!validation.isEmpty())
           return res.status(StatusCodes.PRECONDITION_FAILED).send({ errors: validation.array() });
+      
+        const { startTime, accountId, agentId, endTime } = req.query;
+        if (!(startTime instanceof Date && endTime instanceof Date))
+          return res.status(StatusCodes.PRECONDITION_FAILED).send({ error: "Invalid date!" });
 
-        const result = await service.query(req.body);
+        const result = await service.filter({
+          endTime,
+          startTime,
+          accountId: Number(accountId?.toString()),
+          agentId: Number(agentId?.toString()),
+        });
         return res.status(StatusCodes.OK).send(result); 
       } catch (error) {
-        return res.sendStatus(StatusCodes.INTERNAL_SERVER_ERROR); 
+        return responseError(res, error);
       }
     },
     async create(req: Request<IScheduleCreateRequest>, res: Response): Promise<Response> {
@@ -60,22 +60,48 @@ export function scheduleController(service: IScheduleService): IScheduleControll
         );
 
         return res.status(StatusCodes.CREATED).send(schedule);
-      } catch (error: unknown) {
-        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({ 
-          error: error instanceof Error ? error?.message : "Internal server error!"
-        });
+      } catch (error) {
+        return responseError(res, error);
       }
     },
-    async update(req: Request<IScheduleUpdateRequest>, res: Response): Promise<Response> {
+    async update(req: Request, res: Response): Promise<Response> {
       try {
         const validation = validationResult(req);
-        if (!validation.isEmpty())
-          return res.status(StatusCodes.PRECONDITION_FAILED).send({ errors: validation.array() });
 
-        await service.update(req.body, req.body?.id);
-        return res.sendStatus(StatusCodes.OK); 
+        if (!validation.isEmpty())
+          return res.status(StatusCodes.PRECONDITION_FAILED)
+                    .send({ errors: validation.array() });
+
+
+        const { startTime, endTime, account, agent, schedule } = req.body;
+
+        if (schedule?.accountId !== account.id) 
+          return res.status(StatusCodes.NOT_ACCEPTABLE)
+                    .send({ errors: { msg: "Invalid account to current Schedule!"} });
+
+
+        const hasConflicting = await Promise.all([
+          service.hasConflictingAppointments(agent, startTime, endTime),
+          service.hasConflictingAppointments(account, startTime, endTime)
+        ]);
+
+        if (hasConflicting.includes(true)) 
+          return res.status(StatusCodes.NOT_ACCEPTABLE)
+                    .send({ errors: { msg: "There's conflicting appointments!"} });
+
+        
+        const result = await service.update(
+          schedule?.id,
+          account,
+          agent,
+          {
+            startTime,
+            endTime,
+          });
+
+        return res.status(StatusCodes.ACCEPTED).send({ schedule: result });
       } catch (error) {
-        return res.sendStatus(StatusCodes.INTERNAL_SERVER_ERROR);
+        return responseError(res, error);
       }
     },
     async delete(req: Request, res: Response): Promise<Response> {
@@ -86,14 +112,13 @@ export function scheduleController(service: IScheduleService): IScheduleControll
         
         const schedule = await service.getById(scheduleId);
         if (!schedule) return res.sendStatus(StatusCodes.NOT_FOUND);
-
         await service.delete(scheduleId)
-        return res.sendStatus(StatusCodes.OK); 
+        return res.sendStatus(StatusCodes.ACCEPTED); 
       } catch (error) {
-        return res.sendStatus(StatusCodes.INTERNAL_SERVER_ERROR);
+        return responseError(res, error);
       }
     },
-    async getById(req: Request, res: Response<IScheduleBase>): Promise<Response> {
+    async getById(req: Request, res: Response): Promise<Response> {
       try {
         const scheduleId: string = String(req?.params.scheduleId);
         if (!scheduleId)
@@ -104,7 +129,7 @@ export function scheduleController(service: IScheduleService): IScheduleControll
 
         return res.status(StatusCodes.OK).send(schedule);
       } catch (error) {
-        return res.sendStatus(StatusCodes.INTERNAL_SERVER_ERROR); 
+        return responseError(res, error);
       }
     },
   }
